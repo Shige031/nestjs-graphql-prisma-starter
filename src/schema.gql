@@ -1,0 +1,52 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mutation {
+  createTodo(description: String!, title: String!): TodoModel!
+  createUser(name: String!): UserModel!
+  deleteTodo(id: String!): TodoModel!
+  deleteUser(id: String!): UserModel!
+  updateTodoContent(description: String!, id: String!, title: String!): TodoModel!
+  updateTodoStatus(input: UpdateTodoStatusInput!): TodoModel!
+  updateUser(id: String!, name: String!): UserModel!
+}
+
+type Query {
+  todos: [TodoModel!]!
+  user(id: String!): UserModel!
+}
+
+type TodoModel {
+  createdAt: DateTime!
+  description: String!
+  id: String!
+  status: TodoStatus!
+  title: String!
+  updatedAt: DateTime
+  userId: String!
+}
+
+"""NOT_STARTED,IN_PROGRESS,COMPLETED"""
+enum TodoStatus {
+  COMPLETED
+  IN_PROGRESS
+  NOT_STARTED
+}
+
+input UpdateTodoStatusInput {
+  id: String!
+  status: TodoStatus!
+}
+
+type UserModel {
+  createdAt: DateTime!
+  id: String!
+  name: String!
+  updatedAt: DateTime
+}
