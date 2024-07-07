@@ -1,0 +1,48 @@
+name: test-e2e
+
+on:
+  pull_request:
+
+jobs:
+  test-e2e:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        ports: 
+          - 5306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_USER: starter-api
+          MYSQL_PASSWORD: password
+          MYSQL_DATABASE: starter-db-test
+          TZ: "Asia/Tokyo"
+        options: >-
+          --health-cmd "mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - uses: actions/cache@v3
+        id: node_modules_cache_id
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+      - run: echo '${{ toJSON(steps.node_modules_cache_id.outputs) }}'
+        # キャッシュがあれば、npm install をスキップする
+      - if: ${{ steps.node_modules_cache_id.outputs.cache-hit != 'true' }}
+        run: npm install
+      - run: npm run migrate
+        env:
+          DATABASE_URL: mysql://root:password@localhost:5306/starter-db-test
+      - run: npm run test:e2e
+        env:
+          DATABASE_URL: mysql://root:password@localhost:5306/starter-db-test
