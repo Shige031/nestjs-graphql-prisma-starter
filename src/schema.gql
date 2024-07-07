@@ -9,7 +9,7 @@ scalar DateTime
 
 type Mutation {
   createTodo(description: String!, title: String!): TodoModel!
-  createUser(name: String!): UserModel!
+  createUser(name: String!, uid: String!): UserModel!
   deleteTodo(id: String!): TodoModel!
   deleteUser(id: String!): UserModel!
   updateTodoContent(description: String!, id: String!, title: String!): TodoModel!

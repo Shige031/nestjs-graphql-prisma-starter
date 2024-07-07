@@ -4,6 +4,8 @@ import { FindUserService } from '../service/findUser.service';
 import { CreateUserUseCase } from '../usecase/createUser.usecase';
 import { UpdateUserService } from '../service/updateUser.service';
 import { DeleteUserUseCase } from '../usecase/deleteUser.usecase';
+import { UseGuards } from '@nestjs/common';
+import { FirebaseAuthGuard } from 'src/auth/firebase-auth.guard';
 
 @Resolver(() => UserModel)
 export class UserResolver {
@@ -15,6 +17,7 @@ export class UserResolver {
   ) {}
 
   @Query(() => UserModel)
+  @UseGuards(FirebaseAuthGuard)
   async user(@Args('id') id: string) {
     return await this.findUserService.findById({
       id,
@@ -22,14 +25,18 @@ export class UserResolver {
   }
 
   @Mutation(() => UserModel)
-  async createUser(@Args('name') name: string): Promise<UserModel> {
+  async createUser(
+    @Args('name') name: string,
+    @Args('uid') uid: string,
+  ): Promise<UserModel> {
     return await this.createUserUseCase.handle({
       name,
-      idToken: 'xxx',
+      uid,
     });
   }
 
   @Mutation(() => UserModel)
+  @UseGuards(FirebaseAuthGuard)
   async updateUser(
     @Args('id') id: string,
     @Args('name') name: string,
@@ -41,6 +48,7 @@ export class UserResolver {
   }
 
   @Mutation(() => UserModel)
+  @UseGuards(FirebaseAuthGuard)
   async deleteUser(@Args('id') id: string): Promise<UserModel> {
     return await this.deleteUserService.handle({
       id,
