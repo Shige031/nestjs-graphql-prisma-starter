@@ -8,8 +8,10 @@ import { CreateUserUseCase } from './usecase/createUser.usecase';
 import { FindUserService } from './service/findUser.service';
 import { DeleteUserUseCase } from './usecase/deleteUser.usecase';
 import { UserResolver } from './resolver/user.resolver';
+import { UtilModule } from 'src/util/util.module';
 
 @Module({
+  imports: [UtilModule],
   providers: [
     PrismaService,
     UserRepository,
@@ -21,5 +23,6 @@ import { UserResolver } from './resolver/user.resolver';
     CreateUserUseCase,
     DeleteUserUseCase,
   ],
+  exports: [FindUserService],
 })
 export class UserModule {}
