@@ -4,6 +4,10 @@ import admin from 'firebase-admin';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: '*',
+    credentials: true,
+  });
   admin.initializeApp({
     credential: admin.credential.cert({
       type: process.env.FIREBASE_TYPE,
@@ -20,6 +24,6 @@ async function bootstrap(): Promise<void> {
     } as admin.ServiceAccount),
   });
   const port = Number(process.env.APP_PORT || 3000);
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 }
 bootstrap();
