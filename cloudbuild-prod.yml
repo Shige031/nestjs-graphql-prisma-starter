@@ -1,0 +1,45 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA', '.' ]
+  # Artifact Registryへプッシュ
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA']
+  # Cloud Runへデプロイ
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: 
+      - run 
+      - deploy 
+      - ${_SERVICE_NAME}
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE_NAME}:$SHORT_SHA
+      - --platform=managed
+      - --region=${_REGION}
+      - --project=$PROJECT_ID
+      - --revision-suffix=$SHORT_SHA
+      - --allow-unauthenticated
+      - --update-secrets=DATABASE_URL=SM_DATABASE_URL:latest
+      - --update-secrets=APP_PORT=SM_APP_PORT:latest
+      - --update-secrets=FIREBASE_AUTH_PROVIDER_X509_CERT_URL=SM_FIREBASE_AUTH_PROVIDER_X509_CERT_URL:latest
+      - --update-secrets=FIREBASE_AUTH_URI=SM_FIREBASE_AUTH_URI:latest
+      - --update-secrets=FIREBASE_CLIENT_EMAIL=SM_FIREBASE_CLIENT_EMAIL:latest
+      - --update-secrets=FIREBASE_CLIENT_ID=SM_FIREBASE_CLIENT_ID:latest
+      - --update-secrets=FIREBASE_CLIENT_X509_CERT_URL=SM_FIREBASE_CLIENT_X509_CERT_URL:latest
+      - --update-secrets=FIREBASE_PRIVATE_KEY=SM_FIREBASE_PRIVATE_KEY:latest
+      - --update-secrets=FIREBASE_PRIVATE_KEY_ID=SM_FIREBASE_PRIVATE_KEY_ID:latest
+      - --update-secrets=FIREBASE_PROJECT_ID=SM_FIREBASE_PROJECT_ID:latest
+      - --update-secrets=FIREBASE_TOKEN_URI=SM_FIREBASE_TOKEN_URI:latest
+      - --update-secrets=FIREBASE_TYPE=SM_FIREBASE_TYPE:latest
+      - --update-secrets=FIREBASE_UNIVERSE_DOMAIN=SM_FIREBASE_UNIVERSE_DOMAIN:latest 
+
+options:
+  # Cloud Buildのビルドログ保存方法を明示する
+  # デフォルトではGoogle が作成したデフォルト バケットへビルドログが保存される
+  # とくに分析用途などでは使用していないため、CLOUD_LOGGING_ONLYに変更する
+  # https://cloud.google.com/build/docs/securing-builds/store-manage-build-logs?hl=ja
+  logging: CLOUD_LOGGING_ONLY
+
+#ここでの変数置換は`${〜}`で囲む必要がある。また、ユーザー定義変数はアンダースコア始まりにする。
+substitutions:
+  _REGION: asia-northeast1
+  _REPOSITORY: nestjs-graphql-prisma-starter
+  _SERVICE_NAME: nestjs-graphql-prisma-starter
